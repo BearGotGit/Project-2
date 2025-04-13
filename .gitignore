@@ -1,0 +1,68 @@
+data
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Conda environment files
+env/
+.venv/
+*.conda
+*.env
+
+# PyCharm project files
+.idea/
+
+# Virtual environment folders (if any)
+venv/
+ENV/
+env.bak/
+
+# Jupyter Notebook checkpoints (if you use notebooks)
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Compiled C files
+*.so
+
+# Test and coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+*.cover
+*.py,cover
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+.cache/
+nosetests.xml
+pytest_cache/
+.pytest_cache/
+
+# Other
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# VSCode (if you sometimes pop open code there)
+.vscode/
