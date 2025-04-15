@@ -4,19 +4,14 @@ from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
-from DataHandling.DataLoader import MyDataset
-from DataHandling.Utils import make_onehot, make_onehots, make_not_onehot, calc_path
+from DataHandling.Utils import make_onehot, make_one_hot_vectors, make_not_onehot, calc_path
 
-import os
-from dotenv import load_dotenv
-
-load_dotenv("../.env")
-VOCAB_SIZE = int(os.getenv("VOCAB_SIZE", 10000))
+VOCAB_SIZE = 10000
 
 class MyRNN(nn.Module):
     def __init__(self, vocab_size, hidden_size):
         super().__init__()
-        self.rnn_layer = nn.RNN(vocab_size, hidden_size=hidden_size)
+        self.rnn_layer = nn.RNN(vocab_size, hidden_size=hidden_size, batch_first=True)
         self.out_layer = nn.Linear(hidden_size, vocab_size)
         self.softmax_layer = nn.Softmax(dim=0)
 

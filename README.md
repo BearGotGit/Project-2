@@ -41,11 +41,6 @@ This project focuses on developing a deeper understanding of sequential deep lea
    - Compute Perplexity (PPL) and BLEU score on the test dataset.
    - Generate text using each model for specific prompts.
 
-#### TODO:
-
-1. Use Ghawaly's fancy pants dataset
-2.
-
 ### Deliverables
 
 - **Code Repository**:
@@ -67,23 +62,38 @@ This project focuses on developing a deeper understanding of sequential deep lea
    git clone <repository-url>
    cd <repository-folder>
    ```
+- For all commands, make sure to be in this directory...
+
 2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   conda env create -f environment.yml -n <name_of_new_env>
+   conda activate <name_of_new_env>
    ```
-3. Train the models:
-   ```bash
-   python train.py
-   ```
-4. Evaluate the models:
-   ```bash
-   python evaluate.py
-   ```
+   rsync -avz --progress loni_test berend@qbc.loni.org
+
+[//]: # (Models already trained...)
+[//]: # (3. Train the models:)
+
+[//]: # (   ```bash)
+
+[//]: # (   python train.py)
+
+[//]: # (   ```)
+
+[//]: # (Likewise:)
+[//]: # (4. Evaluate the models:)
+
+[//]: # (   ```bash)
+
+[//]: # (   python evaluate.py)
+
+[//]: # (   ```)
+
 5. Generate text:
    ```bash
-   python generate.py --model <model_name> --prompt "<your_prompt>"
+   python demo.py --model <model_name> --prompt "<your_prompt>"
    ```
 
 ## Contact
 
-For questions or issues, please contact [Your Name] at [Your Email].
+For questions or issues, please contact Berend Grandt at bgrand7@lsu.edu.

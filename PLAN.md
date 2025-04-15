@@ -62,12 +62,10 @@
    - See latter half of lecture 6b
 
    - BLEU Score
+     - Use `ntlk`
 
-   -
-
-   - Perplexity (PPL) Score
-
-   -
+  - Perplexity (PPL) Score
+    - Average cross entropy and raise e to that
 
 6. Train
 
@@ -101,6 +99,8 @@
 
    - Each model class (code) must have a forward method that predicts the vocabulary token
      probabilities and samples the next token in the sequence, returning that token ID.
+     - WARN: Made RNN first... The model `my-rnn_4-14-25_1108pm_45epochs_vocab10000_hidden512_m-token`
+        was trained with poorly interfaced forward method that must accept onehot vectors instead of just token IDs.
 
    - Grad Students: Your forward method must allow one to specify temperature for sampling (see second half lecture 6b).
 
@@ -138,9 +138,25 @@
 
 ### Notes
 
-1. Attempting to use LONI can be done in advanced. Simple tests should be made to verify expected behavior.
+#### Need to do
 2. Make models into diagrams using draw.io
+6. Train/Validation loss curve plots using matplotlib
+6. Refactor RNN class: include prompt method (take from `rnn_demo.py`)
+   11. Temperature doesn't work either
+   12. Nucleus (p-) sampling
+7. Provide custom prompt (after 6)
+8. LSTM still needed
+9. Transformer still needed
+10. Factor Perplexity and BLEU scores to method (independent of model)
+11. 
+12. Deliverables
+
+#### Really should do
+1. Attempting to use LONI can be done in advanced. Simple tests should be made to verify expected behavior.
+
+#### Technically optional
 3. This PLAN.md file can be condensed into approach sectino of deliverable.
 4. Can forego embedding layer until necessary
+
 
 ## Lagniappe

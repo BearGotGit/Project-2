@@ -1,22 +1,12 @@
-import math
-
-import torch.nn as nn
 import torch
-from torch import optim
-from torch.nn import CrossEntropyLoss
+from torch import nn, optim
 from torch.utils.data import DataLoader
-from torchgen.api.translate import out_tensor_ctype
 
 from DataHandling.DataLoader import MyDataset
-from DataHandling.Utils import make_onehot, make_onehots, make_not_onehot, calc_path
-
-import os
-from dotenv import load_dotenv
 
 from Models.rnn import MyRNN
 
-load_dotenv("../.env")
-VOCAB_SIZE = int(os.getenv("VOCAB_SIZE", 10000))
+VOCAB_SIZE = 10000
 HIDDEN_SIZE = 512
 
 # ----- TRAINING -----
