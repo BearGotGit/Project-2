@@ -5,7 +5,7 @@ import sentencepiece as spm
 
 from DataHandling.Utils import calc_path
 
-serialized_model_proto = open(calc_path('../../sentence-piece/simple.model'), 'rb').read()
+serialized_model_proto = open(calc_path('../../sentence-piece/m.model'), 'rb').read()
 sp = spm.SentencePieceProcessor()
 sp.LoadFromSerializedProto(serialized_model_proto)
 

@@ -5,9 +5,15 @@ from typing import List, Tuple
 from DataHandling.Utils import make_onehots
 from DataHandling.Utils import calc_path
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv("../../.env")
+VOCAB_SIZE = int(os.getenv("VOCAB_SIZE", 10000))
+
 # Get our data (simple vs. botchan -- TODO: Replace with a ton of Gutenberg books)
 
-serialized_model_proto = open(calc_path('../../sentence-piece/m.model'), 'rb').read()
+serialized_model_proto = open(calc_path('../../sentence-piece/small.model'), 'rb').read()
 sp = spm.SentencePieceProcessor()
 sp.LoadFromSerializedProto(serialized_model_proto)
 
@@ -58,34 +64,33 @@ def get_data_metadata() -> Tuple[int, int]:
     return 39592, 878
 
 num_samples, sample_size = get_data_metadata()
-num_samples = 1000
-# TODO: num_samples should actually be full dataset
+num_samples = 100
 
-vocab_size = 10000
+# TODO: num_samples should actually be full dataset
 
 # Samples vary in size: we'll take approach to pad after the sequence ends.
 # ... In training, that ensures we don't care about size of sequence (except transformer).
 # ... Hence, RNN and LSTM will see one <pad> and quit that sample; transformer will see all of them.
 # ... Seems to me a necessary evil of using tensors but should have same runtime as though space-complexity weren't dog shit
-seq_tokens = torch.zeros(num_samples, sample_size, vocab_size)
+seq_tokens = torch.zeros(num_samples, sample_size, VOCAB_SIZE)
 
 # TODO: Doing this is slow. Make the dataset one time and use that from then on
 with open(calc_path("../../data/train.jsonl"), mode="r") as data_file:
-    data = torch.zeros((num_samples, sample_size, vocab_size))
+    data = torch.zeros((num_samples, sample_size, VOCAB_SIZE))
 
     for i in range(num_samples):
         line = json.loads(data_file.readline())
 
         prompt = tokenize(line["prompt"])
         comp = tokenize(line["completion"])
-        prompt_onehots = make_onehots(torch.tensor(prompt), vocab_size)
-        comp_onehots = make_onehots(torch.tensor(comp), vocab_size)
+        prompt_onehots = make_onehots(torch.tensor(prompt), VOCAB_SIZE)
+        comp_onehots = make_onehots(torch.tensor(comp), VOCAB_SIZE)
 
         # Data concatenation I was talking about; will construct x and y from this.
         data_i_onehots = torch.cat([prompt_onehots, comp_onehots], dim=0)
-        data_i = make_padded(data_i_onehots, sample_size, vocab_size=vocab_size)
+        data_i = make_padded(data_i_onehots, sample_size, vocab_size=VOCAB_SIZE)
 
         data[i, :, :] = data_i
 
     # Save tensor of data for later use
-    torch.save(data, calc_path("../../data/onehot-data.pth"))
+    torch.save(data, calc_path("../../data/onehot-data-small.pth"))
