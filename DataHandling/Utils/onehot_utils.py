@@ -2,17 +2,6 @@ import torch
 import torch.nn.functional as F
 from typing import List
 
-def make_onehot (token: int, vocab_len):
-    """
-    Given a token, return its onehot encoding
-    :param tokens:
-    :return:
-    """
-    assert token < vocab_len
-    onehot_v = torch.zeros((vocab_len,))
-    onehot_v[token] = 1
-    return onehot_v
-
 def make_not_onehot (onehot: torch.Tensor):
     """
     Given a ohe vector, return its token encoding

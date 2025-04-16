@@ -1,7 +1,6 @@
 import torch
 import sentencepiece as spm
-
-from DataHandling.Utils import make_onehot
+from DataHandling.Utils import make_one_hot_vectors
 from Models.rnn import MyRNN
 
 # Set device
@@ -25,7 +24,7 @@ prompt_text = "Which do you prefer? Dogs or cats?"
 prompt_ids = sp.EncodeAsIds(prompt_text)
 
 # Convert token ids to one-hot tensor and adjust shape for RNN: (seq_len, batch_size, vocab_size)
-prompt_tensor = torch.stack([make_onehot(t, vocab_size=VOCAB_SIZE) for t in prompt_ids]).unsqueeze(1).to(device)
+prompt_tensor = make_one_hot_vectors(prompt_ids, vocab_len=VOCAB_SIZE).unsqueeze(1).to(device)
 
 # Autoregressive generation
 generated_ids = []
@@ -42,7 +41,7 @@ for _ in range(max_length):
         break
     generated_ids.append(predicted_token)
     # Prepare next input by appending the generated token converted to one-hot
-    next_token_onehot = make_onehot(predicted_token, VOCAB_SIZE).unsqueeze(0).unsqueeze(1).to(device)
+    next_token_onehot = make_one_hot_vectors([predicted_token], VOCAB_SIZE).unsqueeze(0).unsqueeze(1).to(device)
     input_seq = torch.cat([input_seq, next_token_onehot], dim=0)
 
 # Decode generated sequence to text

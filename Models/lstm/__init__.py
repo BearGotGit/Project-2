@@ -1,3 +1,3 @@
-from lstm import MyLSTM
+from .lstm import MyLSTM
 
 __all__ = ["MyLSTM"]

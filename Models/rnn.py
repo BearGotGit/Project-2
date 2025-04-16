@@ -3,8 +3,7 @@ import torch
 from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-
-from DataHandling.Utils import make_onehot, make_one_hot_vectors, make_not_onehot, calc_path
+from DataHandling.Utils import make_not_onehot
 
 VOCAB_SIZE = 10000
 

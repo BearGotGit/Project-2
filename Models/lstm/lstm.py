@@ -4,7 +4,7 @@ from typing import List
 import sentencepiece as spm
 from datetime import datetime
 
-from DataHandling.Utils import make_not_onehot, make_one_hot_vectors
+from DataHandling.Utils import make_one_hot_vectors
 
 class MyLSTM(nn.Module):
     def __init__(self, tokenizer: spm.SentencePieceProcessor, hidden_size):
@@ -14,12 +14,21 @@ class MyLSTM(nn.Module):
         """
         super().__init__()
         self.tokenizer = tokenizer
-        self.vocab_size = self.tokenizer.vocab_size()
-        self.lstm_layer = nn.LSTM(self.vocab_size, hidden_size=hidden_size, batch_first=True)
-        self.out_layer = nn.Linear(hidden_size, self.vocab_size)
+        self.vocab_len = self.tokenizer.vocab_size()
+        self.lstm_layer = nn.LSTM(self.vocab_len, hidden_size=hidden_size, batch_first=True)
+        self.out_layer = nn.Linear(hidden_size, self.vocab_len)
         self.softmax_layer = nn.Softmax(dim=-1)
+        self.validating = False
 
-    def _sample_from_dist(self, prob_dist, p_sample_threshold=None) -> int:
+    def train(self, mode: bool = True):
+        super().train(mode)
+        self.validating = False  # optionally reset
+
+    def validate(self):
+        super().train(False)  # puts model in eval mode
+        self.validating = True
+
+    def _sample_from_dist(self, prob_dist: torch.Tensor, p_sample_threshold=None) -> int:
         """
         Sample from a probability distribution with optional top-p (nucleus) sampling.
         If p_sample_threshold is None, falls back to greedy (argmax).
@@ -27,6 +36,7 @@ class MyLSTM(nn.Module):
         if p_sample_threshold is None:
             return torch.argmax(prob_dist, dim=-1).item()
 
+        prob_dist = prob_dist / prob_dist.sum()
         sorted_probs, sorted_indices = torch.sort(prob_dist, descending=True)
         # It keeps dim
         cumulative_probs = torch.cumsum(sorted_probs, dim=0)
@@ -50,7 +60,6 @@ class MyLSTM(nn.Module):
         logits = self.out_layer(h_ts)
         if temperature is not None and temperature != 0:
             logits = logits / temperature
-
         return logits
 
     def _forward_samples(self, input_token_ids, temperature=None, p_sample_threshold=None) -> List[int]:
@@ -65,24 +74,30 @@ class MyLSTM(nn.Module):
             new_token_ids.append(self._sample_from_dist(prob_dist_i, p_sample_threshold))
         return new_token_ids
 
-    def forward(self, input_token_ids: List[int], temperature=None, p_sample_threshold=None):
+    def forward(self, input_token_ids, temperature=None, p_sample_threshold=None):
         """
         Forward returns logits during training, so cross entropy works;
         During inference, it returns list of output tokens
-        :param input_token_ids:
+        :param input_token_ids: List[int] (unbatched) or List[List[int]] ("batched")
         :param temperature:
         :param p_sample_threshold:
         :return:
         """
-        if self.training:
+        if self.training or self.validating:
+            # Returns tensors of batched logits
             return self._forward_logits(input_token_ids, temperature)
         else:
-            return self._forward_samples(input_token_ids, temperature, p_sample_threshold)
+            # Your normal, run-of-the-mill forward
+            # Returns list of token ids
+            return self._forward_samples(input_token_ids, temperature=temperature, p_sample_threshold=p_sample_threshold)
+
+    def identifier(self):
+        timestamp = datetime.now().strftime("%m-%d-%Y_%I-%M%p").lower()
+        return f"lstm-{timestamp}"
 
     def save_model(self, path=None):
         if path is None:
-            timestamp = datetime.now().strftime("%m-%d-%Y_%I-%M%p").lower()
-            path = f"./saved-models/lstm-{timestamp}.pth"
+            path = f"./saved-models/{self.identifier()}.pth"
         torch.save(self, path)
 
     def prompt(self, prompt: str, max_completion_length = 50, temperature=1.0, p_sample_threshold=None):
@@ -90,12 +105,14 @@ class MyLSTM(nn.Module):
 
         eos_id = self.tokenizer.PieceToId("<eos>")
         prompt_tokens = self.tokenizer.EncodeAsIds(prompt)
-        all_tokens = prompt_tokens
+        all_tokens = list(prompt_tokens)
 
         for i in range(max_completion_length):
             response_tokens = self.forward(input_token_ids=all_tokens, temperature=temperature, p_sample_threshold=p_sample_threshold)
             next_token = response_tokens[-1]
             all_tokens.append(next_token)
+            if next_token == eos_id:
+                break
 
         generated_tokens = all_tokens[len(prompt_tokens):]
         generated_text = self.tokenizer.DecodeIds(generated_tokens)

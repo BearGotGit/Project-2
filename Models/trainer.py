@@ -1,10 +1,34 @@
 from typing import Tuple, List
-
 import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader, Dataset, random_split
-
 from Models import MyLSTM
+import os
+import matplotlib.pyplot as plt
+
+# Utility function to make plots
+def make_plots(model, training_losses: List[int], validation_losses: List[int], epochs: int):
+    # Create directory if it doesn't exist
+    os.makedirs("results/training-plots", exist_ok=True)
+    # Default paths useful for tracking specific models, will have same name as model file (eg. "lstm-04-14-2025_09-35pm")
+    file_identifier = model.identifier()
+    plot_path = os.path.join("results/training-plots", f"{file_identifier}.png")
+
+    # Generate and save loss plot
+    plt.figure(figsize=(8, 5))
+    plt.plot(training_losses, label="Training Loss")
+    plt.plot(validation_losses, label="Validation Loss")
+    plt.xlabel("Batch" if len(training_losses) > epochs else "Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training vs Validation Loss")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(plot_path, dpi=300)
+    plt.close()
+
+    print(f"Saved training plot to {plot_path}")
+
 
 class Trainer:
     def __init__(self, model: MyLSTM, data_loader: Dataset):
@@ -14,7 +38,7 @@ class Trainer:
 
     def _for_loop_part(self, is_training=True) -> List[float]:
         data_loader = self.train_loader if is_training else self.validation_loader
-        self.model.train() if is_training else self.model.eval()
+        self.model.train() if is_training else self.model.validate()
 
         new_losses = []
         for batch in data_loader:
@@ -28,10 +52,10 @@ class Trainer:
 
             loss = self.loss_criterion(
                 y_hat.reshape(-1, y_hat.size(-1)),
-                y.reshape(-1)
+                y.reshape(-1).long()
             )
 
-            if is_training:
+            if self.model.training:
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
@@ -47,22 +71,23 @@ class Trainer:
         with torch.no_grad():
             return self._for_loop_part(is_training=False)
 
-    def __call__(self, epochs=30, batch_size=128, percent_of_data_training = 0.8, shuffle_training=True, save_path=None, verbose=False):
+    def __call__(self, epochs=30, batch_size=128, percent_of_data_training = 0.8, shuffle_training=True, model_save_path=None, verbose=False):
         """
         :param epochs:
         :param batch_size:
         :param shuffle_training:
-        :param save_path:
+        :param model_save_path:
         :param verbose:
         :return:
         """
         # It would be a pain to do all that training and be unable to save! Woe unto them!
         assert hasattr(self.model, 'save_model') and callable(getattr(self.model, 'save_model'))
+        assert hasattr(self.model, 'identifier') and callable(getattr(self.model, 'identifier'))
 
         self.model.train()
 
-        # FIXME: Switch to 'cuda' before put on qb2
-        self.device = torch.device('mps' if torch.cuda.is_available() else 'cpu')
+        # Device time!
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         # Split data into train/validate
         train_size = int(percent_of_data_training * len(self.data_loader))
@@ -85,5 +110,5 @@ class Trainer:
             if verbose:
                 print(f"Epoch {e + 1}/{epochs} — Train Loss: {sum(training_losses) / len(training_losses):.4f} | Val Loss: {sum(validation_losses) / len(validation_losses):.4f}")
 
-        # Saves model to default location
+        make_plots(self.model, training_losses=training_losses, validation_losses=validation_losses, epochs=epochs)
         self.model.save_model()
