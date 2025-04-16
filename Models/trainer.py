@@ -2,6 +2,8 @@ from typing import Tuple, List
 import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader, Dataset, random_split
+
+from DataHandling.Utils.save_metrics import save_losses
 from Models import MyLSTM, MyRNN
 import os
 import matplotlib.pyplot as plt
@@ -78,14 +80,16 @@ class Trainer:
         with torch.no_grad():
             return self._for_loop_part(is_training=False, verbose=True)
 
-    def __call__(self, epochs=30, batch_size=128, percent_of_data_training = 0.8, shuffle_training=True, model_save_path=None, verbose=False):
+    def __call__(self, epochs=30, batch_size=128, percent_of_data_training = 0.8, shuffle_training=True, model_save_path=None, verbose=False) -> Tuple[List[float], List[float]]:
         """
+
         :param epochs:
         :param batch_size:
+        :param percent_of_data_training:
         :param shuffle_training:
         :param model_save_path:
         :param verbose:
-        :return:
+        :return: Tuple of (training_losses, validation_losses), where losses are aggregated per epoch
         """
         # It would be a pain to do all that training and be unable to save! Woe unto them!
         assert hasattr(self.model, 'save_model') and callable(getattr(self.model, 'save_model'))
@@ -124,3 +128,6 @@ class Trainer:
 
         make_plots(self.model, training_losses=training_losses, validation_losses=validation_losses, epochs=epochs)
         self.model.save_model()
+        save_losses(self.model, training_losses, validation_losses)
+
+        return training_losses, validation_losses
