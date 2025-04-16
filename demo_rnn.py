@@ -7,12 +7,12 @@ from Models.rnn import MyRNN
 device = torch.device('mps' if torch.cuda.is_available() else 'cpu')
 
 # Load the saved model
-model_path = "../saved-models/my-rnn_4-14-25_1108pm_45epochs_vocab10000_hidden512_m-token.pth"
+model_path = "saved-models/my-rnn_4-14-25_1108pm_45epochs_vocab10000_hidden512_m-token.pth"
 model: MyRNN = torch.load(model_path, map_location=device)
 model.eval()
 
 # Load SentencePiece tokenizer
-model_proto = open("../sentence-piece/m.model", 'rb').read()
+model_proto = open("sentence-piece/m.model", 'rb').read()
 sp = spm.SentencePieceProcessor()
 sp.LoadFromSerializedProto(model_proto)
 

@@ -2,12 +2,12 @@ from typing import Tuple, List
 import torch
 from torch import optim, nn
 from torch.utils.data import DataLoader, Dataset, random_split
-from Models import MyLSTM
+from Models import MyLSTM, MyRNN
 import os
 import matplotlib.pyplot as plt
 
 # Utility function to make plots
-def make_plots(model, training_losses: List[int], validation_losses: List[int], epochs: int):
+def make_plots(model, training_losses: List[float], validation_losses: List[float], epochs: int):
     # Create directory if it doesn't exist
     os.makedirs("results/training-plots", exist_ok=True)
     # Default paths useful for tracking specific models, will have same name as model file (eg. "lstm-04-14-2025_09-35pm")
@@ -31,21 +31,28 @@ def make_plots(model, training_losses: List[int], validation_losses: List[int], 
 
 
 class Trainer:
-    def __init__(self, model: MyLSTM, data_loader: Dataset):
+    def __init__(self, model: MyRNN, data_loader: Dataset, device):
         # Training RNN, LSTM, and Transformer is really similar, so this one class does the work
         self.model = model
         self.data_loader = data_loader
+        self.device = device
 
-    def _for_loop_part(self, is_training=True) -> List[float]:
+    def _for_loop_part(self, is_training=True, verbose=False) -> List[float]:
         data_loader = self.train_loader if is_training else self.validation_loader
         self.model.train() if is_training else self.model.validate()
 
         new_losses = []
+        if verbose and self.model.training:
+            print("Next training batch started")
+        else:
+            print("Next validation batch started")
         for batch in data_loader:
             # (batch_len, seq_len)
             batch: torch.Tensor = batch.to(self.device)
             x = batch[:, :-1]
+            x = x.to(self.device)
             y = batch[:, 1:]
+            y = y.to(self.device)
 
             # (batch_len, seq_len-1, vocab_len)
             y_hat: torch.Tensor = self.model(x)
@@ -65,11 +72,11 @@ class Trainer:
         return new_losses
 
     def _train(self) -> List[float]:
-        return self._for_loop_part(is_training=True)
+        return self._for_loop_part(is_training=True, verbose=True)
 
     def _validate(self) -> List[float]:
         with torch.no_grad():
-            return self._for_loop_part(is_training=False)
+            return self._for_loop_part(is_training=False, verbose=True)
 
     def __call__(self, epochs=30, batch_size=128, percent_of_data_training = 0.8, shuffle_training=True, model_save_path=None, verbose=False):
         """
@@ -87,7 +94,7 @@ class Trainer:
         self.model.train()
 
         # Device time!
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = self.model.to(self.device)
 
         # Split data into train/validate
         train_size = int(percent_of_data_training * len(self.data_loader))
@@ -101,11 +108,16 @@ class Trainer:
             ignore_index=self.model.tokenizer.PieceToId("<pad>")
         )
 
+        # Number training and validation samples varies, so we average loss per batch
         training_losses = []
         validation_losses = []
+        training_batch_losses = []
+        validation_batch_losses = []
         for e in range(epochs):
-            training_losses += self._train()
-            validation_losses += self._validate()
+            training_batch_losses += self._train()
+            training_losses.append(sum(training_batch_losses) / len(training_batch_losses))
+            validation_batch_losses += self._validate()
+            validation_losses.append(sum(validation_batch_losses) / len(validation_batch_losses))
 
             if verbose:
                 print(f"Epoch {e + 1}/{epochs} — Train Loss: {sum(training_losses) / len(training_losses):.4f} | Val Loss: {sum(validation_losses) / len(validation_losses):.4f}")
