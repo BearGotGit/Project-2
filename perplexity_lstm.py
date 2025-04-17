@@ -2,7 +2,7 @@ import math
 from DataHandling import save_score
 from DataHandling.Utils import load_losses
 
-file_base = "losses_lstm-04-16-2025_09-54pm"
+file_base = "losses_lstm-04-17-2025_03-32am"
 _, validation_losses = load_losses(f"./results/training-metrics/{file_base}.json")
 avg_cross_entropy_loss = sum(validation_losses) / len(validation_losses)
 perplexity = math.exp(avg_cross_entropy_loss)

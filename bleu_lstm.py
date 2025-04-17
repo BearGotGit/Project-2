@@ -7,7 +7,7 @@ from Models import MyLSTM
 # Device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-file_base = "lstm-04-16-2025_11-38am"
+file_base = "lstm-04-17-2025_03-32am"
 model: MyLSTM = torch.load(f"saved-models/{file_base}.pth")
 model.eval()
 
