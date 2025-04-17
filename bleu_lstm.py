@@ -23,7 +23,7 @@ with open("data/test.jsonl") as f:
         comp = jsonl["completion"]
         complete = prompt + comp
 
-        tokens = model.tokenizer.DecodeIds(complete)
+        tokens = model.tokenizer.EncodeAsIds(complete)
         # tokens = [0, 1, 2, 3, 4, 5, 6]
         input_token_ids = tokens[:-1]
         output_token_ids = tokens[1:]

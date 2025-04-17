@@ -3,7 +3,7 @@ import torch
 from typing import List
 import sentencepiece as spm
 from datetime import datetime
-from DataHandling.Utils import sample_token_id_from_probability_distribution
+from DataHandling.Utils import sample_token_id
 
 
 class PositionalEncoding(nn.Module):

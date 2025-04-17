@@ -141,22 +141,10 @@
 #### Need to do
 2. Make models into diagrams using draw.io
 6. Train/Validation loss curve plots using matplotlib
-6. Refactor RNN class: include prompt method (take from `rnn_demo.py`)
-   11. Temperature doesn't work either
-   12. Nucleus (p-) sampling
-7. Provide custom prompt (after 6)
-8. LSTM still needed
 9. Transformer still needed
-10. Factor Perplexity and BLEU scores to method (independent of model)
-11. 
 12. Deliverables
 
-#### Really should do
-1. Attempting to use LONI can be done in advanced. Simple tests should be made to verify expected behavior.
-
 #### Technically optional
-3. This PLAN.md file can be condensed into approach sectino of deliverable.
-4. Can forego embedding layer until necessary
-
+3. This PLAN.md file can be condensed into approach section of deliverable.
 
 ## Lagniappe

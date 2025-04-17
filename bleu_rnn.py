@@ -7,7 +7,7 @@ from Models import MyRNN
 # Device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-file_base = "my-rnn_4-14-25_1108pm_45epochs_vocab10000_hidden512_m-token"
+file_base = "losses_rnn-04-16-2025_09-54pm"
 model: MyRNN = torch.load(f"saved-models/{file_base}.pth")
 model.eval()
 
@@ -23,7 +23,7 @@ with open("data/test.jsonl") as f:
         comp = jsonl["completion"]
         complete = prompt + comp
 
-        tokens = model.tokenizer.DecodeIds(complete)
+        tokens = model.tokenizer.EncodeAsIds(complete)
         # tokens = [0, 1, 2, 3, 4, 5, 6]
         input_token_ids = tokens[:-1]
         output_token_ids = tokens[1:]

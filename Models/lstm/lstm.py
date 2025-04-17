@@ -4,8 +4,7 @@ from typing import List
 import sentencepiece as spm
 from datetime import datetime
 
-from DataHandling.Utils import make_one_hot_vectors
-from DataHandling.Utils import sample_token_id_from_probability_distribution
+from DataHandling.Utils import make_one_hot_vectors, sample_token_id_from_probability_distribution
 
 class MyLSTM(nn.Module):
     def __init__(self, tokenizer: spm.SentencePieceProcessor, hidden_size, device=None):

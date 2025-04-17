@@ -4,7 +4,7 @@ from typing import List
 import torch.nn as nn
 import torch
 import sentencepiece as spm
-from DataHandling import make_one_hot_vectors, sample_token_id_from_probability_distribution
+from DataHandling.Utils import make_one_hot_vectors, sample_token_id_from_probability_distribution
 
 class MyRNN(nn.Module):
     def __init__(self, tokenizer: spm.SentencePieceProcessor, hidden_size, device=None):
