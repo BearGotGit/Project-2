@@ -5,6 +5,7 @@ import sentencepiece as spm
 from datetime import datetime
 
 from DataHandling.Utils import make_one_hot_vectors
+from DataHandling.Utils import sample_token_id_from_probability_distribution
 
 class MyLSTM(nn.Module):
     def __init__(self, tokenizer: spm.SentencePieceProcessor, hidden_size, device=None):
@@ -33,27 +34,6 @@ class MyLSTM(nn.Module):
         super().train(False)  # puts model in eval mode
         self.validating = True
 
-    def _sample_from_dist(self, prob_dist: torch.Tensor, p_sample_threshold=None) -> int:
-        """
-        Sample from a probability distribution with optional top-p (nucleus) sampling.
-        If p_sample_threshold is None, falls back to greedy (argmax).
-        """
-        if p_sample_threshold is None:
-            return torch.argmax(prob_dist, dim=-1).item()
-
-        prob_dist = prob_dist / prob_dist.sum()
-        sorted_probs, sorted_indices = torch.sort(prob_dist, descending=True)
-        # It keeps dim
-        cumulative_probs = torch.cumsum(sorted_probs, dim=0)
-        cutoff_mask = cumulative_probs <= p_sample_threshold
-        # If first token were higher than p_sample_threshold, would be false by mask. Force true in all cases
-        cutoff_mask[0] = True
-        filtered_probs = sorted_probs[cutoff_mask]
-        filtered_indices = sorted_indices[cutoff_mask]
-        sampled_index = torch.multinomial(filtered_probs, 1).item()
-
-        return filtered_indices[sampled_index].item()
-
     def _forward_logits(self, input_token_ids, temperature=None) -> torch.Tensor:
         """
         Given input tensor of token_ids, return raw logits (NO softmax);
@@ -76,7 +56,7 @@ class MyLSTM(nn.Module):
         probability_dists = self.softmax_layer(logits)
         new_token_ids = []
         for prob_dist_i in probability_dists:
-            new_token_ids.append(self._sample_from_dist(prob_dist_i, p_sample_threshold))
+            new_token_ids.append(sample_token_id_from_probability_distribution(prob_dist_i, p_sample_threshold))
         return new_token_ids
 
     def forward(self, input_token_ids, temperature=None, p_sample_threshold=None):

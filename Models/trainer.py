@@ -39,7 +39,23 @@ class Trainer:
         self.data_loader = data_loader
         self.device = device
 
-    def _for_loop_part(self, is_training=True, verbose=False) -> List[float]:
+    def _optimizer_part(self, x: torch.Tensor, y: torch.Tensor) -> float:
+        # (batch_len, seq_len-1, vocab_len)
+        y_hat: torch.Tensor = self.model(x)
+
+        loss = self.loss_criterion(
+            y_hat.reshape(-1, y_hat.size(-1)),
+            y.reshape(-1).long()
+        )
+
+        if self.model.training:
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+        return loss.item()
+
+    def _for_loop_part(self, is_training=True, transformer=False, verbose=False) -> List[float]:
         data_loader = self.train_loader if is_training else self.validation_loader
         self.model.train() if is_training else self.model.validate()
 
@@ -56,20 +72,22 @@ class Trainer:
             y = batch[:, 1:]
             y = y.to(self.device)
 
-            # (batch_len, seq_len-1, vocab_len)
-            y_hat: torch.Tensor = self.model(x)
+            if transformer:
+                # FIXME: window_len = transformer.context_len
+                window_len = 512
+                window_steps = x.shape[-1] - window_len
+                loss_same_batch_many_windows = 0
+                for i in range(window_steps):
+                    window_x = x[:, i:i + window_len]
+                    window_y = y[:, i:i + window_len]
+                    loss_same_batch_many_windows += self._optimizer_part(window_x, window_y)
+                loss = loss_same_batch_many_windows / window_steps
 
-            loss = self.loss_criterion(
-                y_hat.reshape(-1, y_hat.size(-1)),
-                y.reshape(-1).long()
-            )
+            # RNN or LSTM, there's no context len
+            else:
+                loss = self._optimizer_part(x, y)
 
-            if self.model.training:
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
-
-            new_losses.append(loss.item())
+            new_losses.append(loss)
 
         return new_losses
 
