@@ -1,0 +1,10 @@
+Starting RNN training...
+Starting LSTM training...
+Started training
+Next training batch started
+Next validation batch started
+Next training batch started
+Next validation batch started
+Saved training plot to results/training-plots/lstm-04-16-2025_11-38am.png
+Starting Transformer training...
+All training runs completed.

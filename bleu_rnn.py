@@ -7,7 +7,7 @@ from Models import MyRNN
 # Device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-file_base = "losses_rnn-04-16-2025_09-54pm"
+file_base = "rnn-04-16-2025_09-54pm"
 model: MyRNN = torch.load(f"saved-models/{file_base}.pth")
 model.eval()
 
