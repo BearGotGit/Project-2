@@ -136,15 +136,7 @@
        Discussion & Conclusion: One half page or less discussing the results and what you learned from the
        project.
 
-### Notes
-
 #### Need to do
-2. Make models into diagrams using draw.io
-6. Train/Validation loss curve plots using matplotlib
 9. Transformer still needed
-12. Deliverables
-
-#### Technically optional
-3. This PLAN.md file can be condensed into approach section of deliverable.
 
 ## Lagniappe
