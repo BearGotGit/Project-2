@@ -17,7 +17,7 @@ Berend Grandt (bgrand7@lsu.edu)
    ```
 
 ## 🧼 Preprocessing
-- These commands assumes the following exist: `./data/train.jsonl`, `./data/test.jsonl`, and `./data/raw/{many books in .txt format}`.
+- NOTE: These commands assumes the following exist: `./data/train.jsonl`, `./data/test.jsonl`, and `./data/raw/{many books in .txt format}`.
 
 1. **Train Tokenizer:**
    ```bash
@@ -47,6 +47,11 @@ python3 train_lstm.py
 ## 📈 Evaluation
 
 ### BLEU Score
+- NOTE: The commands for bleu scores assume the following exist: `/saved-models/lstm-04-17-2025_01-28am.pth` and `/saved-models/rnn-04-17-2025_01-39am.pth`.
+- These models are too large to upload to GitHub. If you're interested in obtaining these models for yourself, email me and I can provide authentication to obtain these models.
+- If you decide to train the RNN and LSTM, they will save in a new location (named with the date they were trained). 
+- Script bleu_*.py loads models from a certain file location. Can update path to file to calculate bleu score for model stored at that path. 
+
 ```bash
 python3 bleu_rnn.py
 python3 bleu_lstm.py
