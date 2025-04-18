@@ -17,6 +17,7 @@ Berend Grandt (bgrand7@lsu.edu)
    ```
 
 ## 🧼 Preprocessing
+- These commands assumes the following exist: `./data/train.jsonl`, `./data/test.jsonl`, and `./data/raw/{many books in .txt format}`.
 
 1. **Train Tokenizer:**
    ```bash
@@ -27,15 +28,14 @@ Berend Grandt (bgrand7@lsu.edu)
    ```bash
    python3 ./DataHandling/make_dataset.py
    ```
-- This command assumes the following exist: `./data/train.jsonl`, `./data/test.jsonl`, and `./data/raw/{many books in .txt format}`.
 
 ## 🏋️‍♂️ Training
 
 ### Local
 Run either:
 ```bash
-python train_rnn.py
-python train_lstm.py
+python3 train_rnn.py
+python3 train_lstm.py
 ```
 
 ### LONI (GPU Cluster)
@@ -48,14 +48,14 @@ python train_lstm.py
 
 ### BLEU Score
 ```bash
-python bleu_rnn.py
-python bleu_lstm.py
+python3 bleu_rnn.py
+python3 bleu_lstm.py
 ```
 
 ### Perplexity
 ```bash
-python perplexity_rnn.py
-python perplexity_lstm.py
+python3 perplexity_rnn.py
+python3 perplexity_lstm.py
 ```
 
 **LONI version:**
@@ -68,8 +68,8 @@ sbatch sbatch-files/eval_rnn_lstm.sbatch
 
 ### Local
 ```bash
-python demo_rnn.py
-python demo_lstm.py
+python3 demo_rnn.py
+python3 demo_lstm.py
 ```
 
 ### LONI
