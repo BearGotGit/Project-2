@@ -2,7 +2,7 @@
 
 Berend Grandt (bgrand7@lsu.edu)
 
-* NOTE: Many of the scripts require trained models to function. Training models is a time-consuming procedure and though I've already trained some, they're not available through GitHub because they're too large. Many prompt and completion pairs exist in `results/demos.out`.
+* NOTE: Many of the scripts require trained models to function. Training models is a time-consuming procedure and though I've already trained some, they're not available through GitHub because they're too large. Many prompt and completion pairs exist in `./results/demos.out`.
 
 ## 🔧 Setup
 
