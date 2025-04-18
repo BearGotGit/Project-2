@@ -5,9 +5,5 @@ channels:
 dependencies:
   - pytorch
   - sentencepiece
-  - python-dotenv
   - nltk
   - matplotlib
-  - torchview
-  - tensorboard
-prefix: /Users/berendgrandt/miniconda3/envs/project-2-berend-grandt
